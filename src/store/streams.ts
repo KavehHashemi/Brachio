@@ -50,8 +50,8 @@ export const listJetstreams = createAsyncThunk(
   async (jetstreamManager: JetStreamManager, thunkAPI) => {
     let singleJetstreams: SingleJetstream[] = [];
     const response = await jetstreamManager?.streams.list().next();
-    response.map(async (res) => {
-      let consumers: ConsumerInfo[] = await jetstreamManager.consumers
+    let promises = response.map(async (res) => {
+      let consumers = await jetstreamManager.consumers
         .list(res.config.name)
         .next();
       singleJetstreams = [
@@ -59,27 +59,12 @@ export const listJetstreams = createAsyncThunk(
         { stream: res, consumers: consumers },
       ];
       console.log(singleJetstreams);
+      return singleJetstreams;
     });
-    return singleJetstreams;
+    let a = await Promise.all(promises);
+    return a[a.length - 1];
   }
 );
-
-// export const listStreamConsumers = createAsyncThunk(
-//   "streams/listStreamConsumers",
-//   async (config: any, thunkAPI) => {
-//     let consumersList: { stream: string; consumers: ConsumerInfo[] }[] = [];
-//     config.streams.map(async (st: StreamInfo) => {
-//       let a: ConsumerInfo[] = await config.jetstreamManager.consumers
-//         .list(st.config.name)
-//         .next();
-//       consumersList = [
-//         ...consumersList,
-//         { stream: st.config.name, consumers: a },
-//       ];
-//     });
-//     return consumersList;
-//   }
-// );
 
 export const addNewJetstream = createAsyncThunk(
   "streams/addNewStream",
@@ -105,17 +90,6 @@ export const addNewJetstream = createAsyncThunk(
     return response;
   }
 );
-
-// export const listConsumers = createAsyncThunk(
-//   "streams/listConsumers",
-//   async (config: any, thunkAPI) => {
-//     const response = await config.jetstreamManager.consumers
-//       .list(config.stream.config.name)
-//       .next();
-//     console.log("listing consumers");
-//     return response;
-//   }
-// );
 
 export const purgeStream = createAsyncThunk(
   "streams/purgeStream",
@@ -176,10 +150,6 @@ export const streamsSlice = createSlice({
         state.searchResults = state.jetstreams;
         console.log("jetstreams listed");
       })
-      // .addCase(listStreamConsumers.fulfilled, (state, action) => {
-      //   state.streamConsumers = action.payload;
-      //   console.log(state.streamConsumers);
-      // })
       .addCase(addNewJetstream.fulfilled, (state: IinitialState, action) => {
         state.jetstreams.push(action.payload);
         state.searchResults = state.jetstreams;

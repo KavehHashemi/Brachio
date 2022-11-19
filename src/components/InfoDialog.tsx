@@ -17,7 +17,7 @@ const InfoDialog = ({ open, handleShow, jetstream }: props) => {
   let consumersList: JSX.Element[] = [];
   let consumerCounter: number = 0;
   jetstream.consumers?.forEach((con) => {
-    consumersList.push(<div key={consumerCounter}>{con.config.name}</div>);
+    consumersList.push(<div key={consumerCounter}>{con?.name}</div>);
     consumerCounter++;
   });
 
