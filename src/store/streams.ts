@@ -10,6 +10,7 @@ export type SingleJetstream = {
   stream: StreamInfo;
   consumers: ConsumerInfo[];
 };
+
 interface IinitialState {
   natsConnection: NatsConnection | undefined;
   jetstreamManager: JetStreamManager | null;
@@ -62,6 +63,23 @@ export const listJetstreams = createAsyncThunk(
     return singleJetstreams;
   }
 );
+
+// export const listStreamConsumers = createAsyncThunk(
+//   "streams/listStreamConsumers",
+//   async (config: any, thunkAPI) => {
+//     let consumersList: { stream: string; consumers: ConsumerInfo[] }[] = [];
+//     config.streams.map(async (st: StreamInfo) => {
+//       let a: ConsumerInfo[] = await config.jetstreamManager.consumers
+//         .list(st.config.name)
+//         .next();
+//       consumersList = [
+//         ...consumersList,
+//         { stream: st.config.name, consumers: a },
+//       ];
+//     });
+//     return consumersList;
+//   }
+// );
 
 export const addNewJetstream = createAsyncThunk(
   "streams/addNewStream",
@@ -158,6 +176,10 @@ export const streamsSlice = createSlice({
         state.searchResults = state.jetstreams;
         console.log("jetstreams listed");
       })
+      // .addCase(listStreamConsumers.fulfilled, (state, action) => {
+      //   state.streamConsumers = action.payload;
+      //   console.log(state.streamConsumers);
+      // })
       .addCase(addNewJetstream.fulfilled, (state: IinitialState, action) => {
         state.jetstreams.push(action.payload);
         state.searchResults = state.jetstreams;
