@@ -7,6 +7,22 @@ export const store = configureStore({
     streams: streamsReducer,
     consumers: consumersReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [
+          "streams/connectToServer/fulfilled",
+          "streams/setJetstreamManager/fulfilled",
+          "streams/listJetstreams/fulfilled",
+          "streams/editStream/fulfilled",
+        ],
+        ignoredPaths: [
+          "streams.natsConnection",
+          "streams.jetstreamManager",
+          "streams.listJetstreams",
+        ],
+      },
+    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

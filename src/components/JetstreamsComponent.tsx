@@ -17,7 +17,7 @@ const JetstreamsComponent = () => {
   }, [jetstreamManager]);
 
   const jetstreamArray: JSX.Element[] = [];
-  searchResults?.map((js) => {
+  searchResults.forEach((js) => {
     jetstreamArray.push(
       <JetstreamComponent
         jetstream={js}
@@ -25,6 +25,7 @@ const JetstreamsComponent = () => {
       ></JetstreamComponent>
     );
   });
+
   return (
     <div className="jetstream-container">
       <div className="jetstream-header">

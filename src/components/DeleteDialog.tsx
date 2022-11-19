@@ -1,4 +1,3 @@
-import React from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { removeJetstream, listJetstreams } from "../store/streams";
 import Button from "@mui/material/Button";
@@ -19,7 +18,7 @@ const DeleteDialog = ({ open, handleShow, jetstream }: props) => {
   const dispatch = useAppDispatch();
   const { jetstreamManager } = useAppSelector((state) => state.streams);
   const deleteJetstream = () => {
-    dispatch(removeJetstream(jetstream));
+    dispatch(removeJetstream(jetstream.config.name));
     if (jetstreamManager !== null) {
       dispatch(listJetstreams(jetstreamManager));
     }
@@ -31,7 +30,7 @@ const DeleteDialog = ({ open, handleShow, jetstream }: props) => {
         <DialogTitle>{"Delete Jetstream"}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {`Are you sure you want to delete jetstream ${jetstream}?`}
+            {`Are you sure you want to delete jetstream ${jetstream.config.name}?`}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

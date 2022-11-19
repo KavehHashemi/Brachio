@@ -1,43 +1,68 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { connect } from "nats.ws";
-import { JetStreamClientImpl } from "nats.ws/lib/nats-base-client/jsclient";
 import {
   JetStreamManager,
-  Consumer,
   StreamInfo,
+  NatsConnection,
+  ConsumerInfo,
 } from "nats.ws/lib/nats-base-client/types";
-
+export type SingleJetstream = {
+  stream: StreamInfo;
+  consumers: ConsumerInfo[];
+};
 interface IinitialState {
-  jsm: JetStreamClientImpl | undefined;
+  natsConnection: NatsConnection | undefined;
   jetstreamManager: JetStreamManager | null;
-  jetstreams: StreamInfo[];
-  searchResults: StreamInfo[];
-  consumers: Consumer[];
+  jetstreams: SingleJetstream[];
+  searchResults: SingleJetstream[];
   errorMessage: string | null;
 }
 const initialState: IinitialState = {
-  jsm: undefined,
+  natsConnection: undefined,
   jetstreamManager: null,
   jetstreams: [],
   searchResults: [],
-  consumers: [],
   errorMessage: null,
 };
-export const setUpConnection = createAsyncThunk(
-  "streams/setUpConnection",
+
+export const connecToServer = createAsyncThunk(
+  "streams/connectToServer",
   async (serverUrl: string, thunkAPI) => {
-    const natsConnection = await connect({ servers: [serverUrl] });
+    const natsConnection = await connect({
+      servers: [serverUrl],
+    });
+    console.log("returning natsConnection");
+    return natsConnection;
+  }
+);
+
+export const setJetstreamManager = createAsyncThunk(
+  "streams/setJetstreamManager",
+  async (natsConnection: NatsConnection, thunkAPI) => {
     const jetstreamManager = await natsConnection.jetstreamManager();
+    console.log("returning jetstreamManager");
     return jetstreamManager;
   }
 );
 export const listJetstreams = createAsyncThunk(
   "streams/listJetstreams",
   async (jetstreamManager: JetStreamManager, thunkAPI) => {
+    let singleJetstreams: SingleJetstream[] = [];
     const response = await jetstreamManager?.streams.list().next();
-    return response;
+    response.map(async (res) => {
+      let consumers: ConsumerInfo[] = await jetstreamManager.consumers
+        .list(res.config.name)
+        .next();
+      singleJetstreams = [
+        ...singleJetstreams,
+        { stream: res, consumers: consumers },
+      ];
+      console.log(singleJetstreams);
+    });
+    return singleJetstreams;
   }
 );
+
 export const addNewJetstream = createAsyncThunk(
   "streams/addNewStream",
   async (config: any, thunkAPI) => {
@@ -63,20 +88,22 @@ export const addNewJetstream = createAsyncThunk(
   }
 );
 
-export const listConsumers = createAsyncThunk(
-  "streams/listConsumers",
-  async (config: any, thunkAPI) => {
-    const response = await config.jetstreamManager.consumers
-      .list(config.stream)
-      .next();
-    return response;
-  }
-);
+// export const listConsumers = createAsyncThunk(
+//   "streams/listConsumers",
+//   async (config: any, thunkAPI) => {
+//     const response = await config.jetstreamManager.consumers
+//       .list(config.stream.config.name)
+//       .next();
+//     console.log("listing consumers");
+//     return response;
+//   }
+// );
 
 export const purgeStream = createAsyncThunk(
   "streams/purgeStream",
   async (config: any, thunkAPI) => {
     const response = await config.jetstreamManager.streams.purge(config.stream);
+    console.log("purging stream");
     return response;
   }
 );
@@ -88,6 +115,7 @@ export const editStream = createAsyncThunk(
       config.stream,
       { subjects: config.subjects }
     );
+    console.log("editing stream");
     return response;
   }
 );
@@ -102,8 +130,8 @@ export const streamsSlice = createSlice({
       state.searchResults = state.jetstreams;
     },
     searchJetstreams: (state, action) => {
-      state.searchResults = state.jetstreams.filter((js: StreamInfo) => {
-        return js.config.name
+      state.searchResults = state.jetstreams.filter((js) => {
+        return js.stream.config.name
           .toLowerCase()
           .includes(action.payload.toLowerCase());
       });
@@ -114,30 +142,34 @@ export const streamsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(setUpConnection.fulfilled, (state, action) => {
-        state.jetstreamManager = action.payload;
+      .addCase(connecToServer.fulfilled, (state: IinitialState, action) => {
+        console.log("natsConnection set ");
+        state.natsConnection = action.payload;
       })
-      .addCase(listJetstreams.fulfilled, (state, action) => {
+      .addCase(
+        setJetstreamManager.fulfilled,
+        (state: IinitialState, action) => {
+          console.log("jetstreamManager set ");
+          state.jetstreamManager = action.payload;
+        }
+      )
+      .addCase(listJetstreams.fulfilled, (state: IinitialState, action) => {
         state.jetstreams = action.payload;
         state.searchResults = state.jetstreams;
-        console.log("listed");
+        console.log("jetstreams listed");
       })
-      .addCase(addNewJetstream.fulfilled, (state, action) => {
+      .addCase(addNewJetstream.fulfilled, (state: IinitialState, action) => {
         state.jetstreams.push(action.payload);
         state.searchResults = state.jetstreams;
       })
-      .addCase(addNewJetstream.rejected, (state, action) => {
+      .addCase(addNewJetstream.rejected, (state: IinitialState, action) => {
         state.errorMessage = action.error.message || null;
-        // console.log(action);
-      })
-      .addCase(listConsumers.fulfilled, (state, action) => {
-        // console.log(action.payload);
-        state.consumers = action.payload;
       })
       .addCase(purgeStream.fulfilled, (state, action) => {
         console.log("stream purged");
       })
       .addCase(editStream.fulfilled, (state, action) => {
+        state.searchResults = state.jetstreams;
         console.log("stream edited");
       });
   },

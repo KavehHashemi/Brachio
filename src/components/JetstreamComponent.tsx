@@ -1,6 +1,5 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect } from "react";
 import { useState } from "react";
 import DeleteDialog from "./DeleteDialog";
 import InfoDialog from "./InfoDialog";
@@ -10,10 +9,10 @@ import InfoIcon from "@mui/icons-material/InfoOutlined";
 import ClearIcon from "@mui/icons-material/CleaningServicesOutlined";
 import EditIcon from "@mui/icons-material/Edit";
 import EditDialog from "./EditDialog";
-import { StreamInfo } from "nats.ws";
+import { SingleJetstream } from "../store/streams";
 
 type props = {
-  jetstream: StreamInfo;
+  jetstream: SingleJetstream;
 };
 
 const JetstreamComponent = ({ jetstream }: props) => {
@@ -37,7 +36,7 @@ const JetstreamComponent = ({ jetstream }: props) => {
 
   const subjectsArray: JSX.Element[] = [];
   let counter = 0;
-  jetstream.config.subjects.map((subj: string) => {
+  jetstream.stream.config.subjects.map((subj: string) => {
     subjectsArray.push(
       <span className="subjects" key={counter}>
         {subj}
@@ -46,13 +45,13 @@ const JetstreamComponent = ({ jetstream }: props) => {
     counter++;
   });
 
-  useEffect(() => {}, []);
-
   return (
     <>
       <div className="jetstream-card">
         <div className="jetstream-card-header">
-          <div className="jetstream-name">{jetstream.config.name}</div>
+          <div className="jetstream-name">
+            {jetstream?.stream?.config?.name}
+          </div>
           <div className="jetstream-actions">
             <EditIcon
               className="card-icon"
@@ -82,16 +81,15 @@ const JetstreamComponent = ({ jetstream }: props) => {
         </div>
         <div className="jetstream-content">
           <div className="jetstream-subject">{subjectsArray}</div>
-          {/* <div className="jetstream-subject">{jetstream.config.subjects}</div> */}
           <div className="jetstream-additional">
-            <div>Messages: {jetstream.state.messages}</div>
-            <div>Active Consumers: {jetstream.state.consumer_count}</div>
+            <div>Messages: {jetstream.stream.state.messages}</div>
+            <div>Active Consumers: {jetstream.stream.state.consumer_count}</div>
           </div>
         </div>
         <div className="jetstream-footer"></div>
       </div>
       <DeleteDialog
-        jetstream={jetstream}
+        jetstream={jetstream.stream}
         open={showDeleteDialog}
         handleShow={handleDeleteDialog}
       ></DeleteDialog>
@@ -101,12 +99,12 @@ const JetstreamComponent = ({ jetstream }: props) => {
         handleShow={handleInfoDialog}
       ></InfoDialog>
       <PurgeDialog
-        jetstream={jetstream}
+        jetstream={jetstream.stream}
         open={showPurgeDialog}
         handleShow={handlePurgeDialog}
       ></PurgeDialog>
       <EditDialog
-        jetstream={jetstream}
+        jetstream={jetstream.stream}
         open={showEditDialog}
         handleShow={handleEditDialog}
       ></EditDialog>

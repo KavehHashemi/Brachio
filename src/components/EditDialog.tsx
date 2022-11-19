@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { editStream, listJetstreams } from "../store/streams";
 import Button from "@mui/material/Button";
@@ -19,17 +19,17 @@ const EditDialog = ({ open, handleShow, jetstream }: props) => {
   const dispatch = useAppDispatch();
   const { jetstreamManager } = useAppSelector((state) => state.streams);
   const [subjects, setSubjects] = useState(jetstream.config.subjects);
-  const editJetstream = () => {
+  const editJetstream = async () => {
     const config = {
       stream: jetstream.config.name,
       jetstreamManager: jetstreamManager,
       subjects: subjects,
     };
-    // console.log(config);
-    dispatch(editStream(config));
+    await dispatch(editStream(config));
     if (jetstreamManager !== null) {
       dispatch(listJetstreams(jetstreamManager));
     }
+
     handleShow(false);
   };
 
@@ -50,8 +50,6 @@ const EditDialog = ({ open, handleShow, jetstream }: props) => {
           <TextField
             fullWidth
             value={subjects}
-            // onChange={(e) => setSubjects(e.target.value)}
-            // onBlur={(e) => handleChange(e.target.value)}
             onChange={(e) => handleChange(e.target.value)}
           ></TextField>
         </DialogContent>

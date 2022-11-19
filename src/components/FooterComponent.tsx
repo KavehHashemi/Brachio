@@ -1,17 +1,17 @@
+import { NatsConnectionImpl } from "nats.ws/lib/nats-base-client/nats";
 import { useAppSelector } from "../hooks";
 
 const FooterComponent = () => {
-  const { jsm } = useAppSelector((state) => state.streams);
-  let connectionStatus;
-  let connectedServer;
+  const { natsConnection } = useAppSelector((state) => state.streams);
+  let connectedServer: string | undefined;
+  let connectionStatus: string | undefined;
+  let nci = natsConnection as NatsConnectionImpl;
 
-  if (jsm !== undefined) {
-    connectionStatus = jsm.nc.protocol.connected
+  if (natsConnection !== undefined) {
+    connectionStatus = nci.protocol.connected
       ? "Connected"
-      : jsm.nc.protocol.connectError?.toString();
-    connectedServer = jsm.nc.protocol.connected
-      ? jsm.nc.protocol.server.listen
-      : "";
+      : "Connection Failed";
+    connectedServer = nci.protocol.connected ? nci.protocol.server.listen : "";
   }
 
   return (
