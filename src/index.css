@@ -23,7 +23,7 @@ code {
     monospace;
 }
 /* APP FOOTER */
-.header {
+.footer {
   display: flex;
   justify-content: space-between;
   font-family: "Source Code Pro";
@@ -42,7 +42,7 @@ code {
   display: inline-block;
   margin-inline: 1rem;
 }
-.error {
+/* .error {
   display: flex;
   justify-content: flex-end;
 }
@@ -50,7 +50,7 @@ code {
   display: inline-block;
   margin-inline: 1rem;
   color: yellow;
-}
+} */
 /* JETSTREAM SECTION */
 
 .jetstream-header {
@@ -60,7 +60,7 @@ code {
   font-weight: bold;
   gap: 1rem;
 }
-.jetstream-add {
+/* .jetstream-add {
   border: none;
   border-radius: 3px;
   background-color: #e6f0fa;
@@ -74,14 +74,14 @@ code {
 }
 .jetstream-add:active {
   transform: scale(0.95);
-}
-.search-container {
+} */
+/* .search-container {
   padding: 2%;
   display: flex;
   justify-content: center;
-}
+} */
 .search-div {
-  margin: 1rem 0;
+  margin: 1rem 0.5rem;
   display: flex;
   justify-content: center;
 }
@@ -128,7 +128,7 @@ code {
   justify-content: flex-end;
   gap: 0.6rem;
 }
-.jetstream-delete {
+/* .jetstream-delete {
   border: none;
   color: crimson;
   background-color: #e6f0fa;
@@ -138,7 +138,7 @@ code {
 }
 .jetstream-delete:hover {
   background-color: #e3cfd3;
-}
+} */
 .card-icon {
   cursor: pointer;
 }

@@ -5,11 +5,25 @@ import {
   StreamInfo,
   NatsConnection,
   ConsumerInfo,
+  StreamConfig,
 } from "nats.ws/lib/nats-base-client/types";
 
 export type SingleJetstream = {
   stream: StreamInfo;
   consumers: ConsumerInfo[];
+};
+export type AddStreamConfig = {
+  jetstreamManager: JetStreamManager | null;
+  streamConfig: Partial<StreamConfig>;
+};
+export type PurgeStreamConfig = {
+  jetstreamManager: JetStreamManager | null;
+  stream: string;
+};
+export type EditStreamConfig = {
+  jetstreamManager: JetStreamManager | null;
+  stream: string;
+  subjects: string[];
 };
 
 interface IinitialState {
@@ -17,6 +31,7 @@ interface IinitialState {
   jetstreamManager: JetStreamManager | null;
   jetstreams: SingleJetstream[];
   searchResults: SingleJetstream[];
+  message: string | null;
   errorMessage: string | null;
 }
 const initialState: IinitialState = {
@@ -24,6 +39,7 @@ const initialState: IinitialState = {
   jetstreamManager: null,
   jetstreams: [],
   searchResults: [],
+  message: null,
   errorMessage: null,
 };
 
@@ -65,33 +81,39 @@ export const listJetstreams = createAsyncThunk(
 
 export const addNewJetstream = createAsyncThunk(
   "streams/addNewStream",
-  async (config: any, thunkAPI) => {
+  async (config: AddStreamConfig, thunkAPI) => {
     const StreamConfig = {
-      name: config.name,
-      subjects: config.subjects,
-      storage: config.storage,
-      num_replicas: config.replication,
-      retention: config.retentionPolicy,
-      discard: config.discardPolicy,
-      max_msgs: config.messagesLimit,
-      max_msgs_per_subject: config.perSubjectMessagesLimit,
-      max_bytes: config.totalStreamsize,
-      max_age: config.messageTTL * 1000000000, //seconds to NANOseconds
-      max_msg_size: config.maxMessageSize,
-      duplicate_window: config.duplicateTrackingTimeWindow * 1000000000, //seconds to NANOseconds
-      allow_rollup_hdrs: config.allowMessageRollUps,
-      deny_delete: config.allowMessageDeletion,
-      deny_purge: config.allowPurge,
+      name: config.streamConfig.name,
+      subjects: config.streamConfig.subjects,
+      storage: config.streamConfig.storage,
+      num_replicas: config.streamConfig.num_replicas,
+      retention: config.streamConfig.retention,
+      discard: config.streamConfig.discard,
+      max_msgs: config.streamConfig.max_msgs,
+      max_msgs_per_subject: config.streamConfig.max_msgs_per_subject,
+      max_bytes: config.streamConfig.max_bytes,
+      max_age: config.streamConfig.max_age
+        ? config.streamConfig.max_age * 1000000000
+        : 0, //seconds to NANOseconds
+      max_msg_size: config.streamConfig.max_msg_size,
+      duplicate_window: config.streamConfig.duplicate_window
+        ? config.streamConfig.duplicate_window * 1000000000
+        : 0, //seconds to NANOseconds
+      allow_rollup_hdrs: config.streamConfig.allow_rollup_hdrs,
+      deny_delete: config.streamConfig.deny_delete,
+      deny_purge: config.streamConfig.deny_purge,
     };
-    const response = await config.jetstreamManager.streams.add(StreamConfig);
+    const response = await config.jetstreamManager?.streams.add(StreamConfig);
     return response;
   }
 );
 
 export const purgeStream = createAsyncThunk(
   "streams/purgeStream",
-  async (config: any, thunkAPI) => {
-    const response = await config.jetstreamManager.streams.purge(config.stream);
+  async (config: PurgeStreamConfig, thunkAPI) => {
+    const response = await config.jetstreamManager?.streams.purge(
+      config.stream
+    );
     console.log("purging stream");
     return response;
   }
@@ -99,8 +121,8 @@ export const purgeStream = createAsyncThunk(
 
 export const editStream = createAsyncThunk(
   "streams/editStream",
-  async (config: any, thunkAPI) => {
-    const response = await config.jetstreamManager.streams.update(
+  async (config: EditStreamConfig, thunkAPI) => {
+    const response = await config.jetstreamManager?.streams.update(
       config.stream,
       { subjects: config.subjects }
     );
@@ -117,6 +139,7 @@ export const streamsSlice = createSlice({
         state.jetstreamManager?.streams.delete(action.payload);
       }
       state.searchResults = state.jetstreams;
+      state.message = "Stream successfully deleted";
     },
     searchJetstreams: (state, action) => {
       state.searchResults = state.jetstreams.filter((js) => {
@@ -127,6 +150,9 @@ export const streamsSlice = createSlice({
     },
     clearErrorMessage: (state) => {
       state.errorMessage = null;
+    },
+    clearMessage: (state) => {
+      state.message = null;
     },
   },
   extraReducers: (builder) => {
@@ -148,23 +174,43 @@ export const streamsSlice = createSlice({
         console.log("jetstreams listed");
       })
       .addCase(addNewJetstream.fulfilled, (state: IinitialState, action) => {
-        state.jetstreams.push(action.payload);
+        if (action.payload !== undefined) {
+          const added: SingleJetstream = {
+            stream: action.payload,
+            consumers: [],
+          };
+          state.jetstreams.push(added);
+        }
         state.searchResults = state.jetstreams;
+        console.log(action);
+        state.message = "Stream successfully created";
       })
       .addCase(addNewJetstream.rejected, (state: IinitialState, action) => {
         state.errorMessage = action.error.message || null;
       })
       .addCase(purgeStream.fulfilled, (state, action) => {
+        state.message = "Stream successfully purged";
         console.log("stream purged");
+      })
+      .addCase(purgeStream.rejected, (state, action) => {
+        state.errorMessage = action.error.message || null;
       })
       .addCase(editStream.fulfilled, (state, action) => {
         state.searchResults = state.jetstreams;
+        state.message = "Stream successfully edited";
         console.log("stream edited");
+      })
+      .addCase(editStream.rejected, (state, action) => {
+        state.errorMessage = action.error.message || null;
       });
   },
 });
 
-export const { removeJetstream, searchJetstreams, clearErrorMessage } =
-  streamsSlice.actions;
+export const {
+  removeJetstream,
+  searchJetstreams,
+  clearErrorMessage,
+  clearMessage,
+} = streamsSlice.actions;
 
 export default streamsSlice.reducer;

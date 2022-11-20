@@ -15,7 +15,7 @@ const FooterComponent = () => {
   }
 
   return (
-    <div className="header">
+    <div className="footer">
       <div className="info">
         <span className="info-span">{connectionStatus}</span>
         <span className="info-span">{connectedServer}</span>

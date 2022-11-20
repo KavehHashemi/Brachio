@@ -1,7 +1,6 @@
-import React from "react";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { addNewJetstream } from "../store/streams";
+import { addNewJetstream, AddStreamConfig } from "../store/streams";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -16,6 +15,7 @@ import FormLabel from "@mui/material/FormLabel";
 import Switch from "@mui/material/Switch";
 import Tooltip from "@mui/material/Tooltip";
 import InfoIcon from "@mui/icons-material/InfoOutlined";
+import { StorageType, RetentionPolicy, DiscardPolicy } from "nats.ws";
 
 type props = {
   open: boolean;
@@ -24,47 +24,51 @@ type props = {
 
 const AddDialog = ({ open, openHandler }: props) => {
   const dispatch = useAppDispatch();
-  const { jetstreamManager } = useAppSelector((state: any) => state.streams);
-
+  const { jetstreamManager } = useAppSelector((state) => state.streams);
   const [jetstreamName, setJetstreamName] = useState<string>("");
   const [subjects, setSubjects] = useState<string[]>([]);
-
-  const [storage, setStorage] = useState<string>("file");
+  const [storage, setStorage] = useState<StorageType>(StorageType.File);
   const [replication, setReplication] = useState<number>(1);
-  const [retentionPolicy, setRetentionPolicy] = useState<string>("limits");
-  const [discardPolicy, setDiscardPolicy] = useState<string>("old");
+  const [retentionPolicy, setRetentionPolicy] = useState<RetentionPolicy>(
+    RetentionPolicy.Limits
+  );
+  const [discardPolicy, setDiscardPolicy] = useState<DiscardPolicy>(
+    DiscardPolicy.Old
+  );
   const [messagesLimit, setMessagesLimit] = useState<number>(-1);
-  const [perSubjectMessagesLimit, setPerSubjectMessagesLimit] = useState(-1);
-  const [totalStreamsize, setTotalStreamsize] = useState(-1);
-  const [messageTTL, setMessageTTL] = useState(0);
-  const [maxMessageSize, setMaxMessageSize] = useState(-1);
+  const [perSubjectMessagesLimit, setPerSubjectMessagesLimit] =
+    useState<number>(-1);
+  const [totalStreamsize, setTotalStreamsize] = useState<number>(-1);
+  const [messageTTL, setMessageTTL] = useState<number>(0);
+  const [maxMessageSize, setMaxMessageSize] = useState<number>(-1);
   const [duplicateTrackingTimeWindow, setDuplicateTrackingTimeWindow] =
-    useState(0);
+    useState<number>(0);
   const [allowMessageRollUps, setAllowMessageRollUps] =
     useState<boolean>(false);
   const [allowMessageDeletion, setAllowMessageDeletion] =
     useState<boolean>(true);
   const [allowPurge, setAllowPurge] = useState<boolean>(true);
 
-  const addJetstream = () => {
-    let config = {
+  const addJetstream = async () => {
+    let config: AddStreamConfig = {
       jetstreamManager: jetstreamManager,
-      name: jetstreamName,
-      // subjects: [subject],
-      subjects: subjects,
-      storage: storage,
-      replication: replication,
-      retentionPolicy: retentionPolicy,
-      discardPolicy: discardPolicy,
-      messagesLimit: messagesLimit,
-      perSubjectMessagesLimit: perSubjectMessagesLimit,
-      totalStreamsize: totalStreamsize,
-      messageTTL: messageTTL,
-      maxMessageSize: maxMessageSize,
-      duplicateTrackingTimeWindow: duplicateTrackingTimeWindow,
-      allowMessageRollUps: !allowMessageRollUps,
-      allowMessageDeletion: !allowMessageDeletion,
-      allowPurge: !allowPurge,
+      streamConfig: {
+        name: jetstreamName,
+        subjects: subjects,
+        storage: storage,
+        num_replicas: replication,
+        retention: retentionPolicy,
+        discard: discardPolicy,
+        max_msgs: messagesLimit,
+        max_msgs_per_subject: perSubjectMessagesLimit,
+        max_bytes: totalStreamsize,
+        max_age: messageTTL,
+        max_msg_size: maxMessageSize,
+        duplicate_window: duplicateTrackingTimeWindow,
+        allow_rollup_hdrs: !allowMessageRollUps,
+        deny_delete: !allowMessageDeletion,
+        deny_purge: !allowPurge,
+      },
     };
     dispatch(addNewJetstream(config));
   };
@@ -138,15 +142,15 @@ const AddDialog = ({ open, openHandler }: props) => {
               <RadioGroup
                 row
                 value={storage}
-                onChange={(e) => setStorage(e.target.value)}
+                onChange={(e) => setStorage(e.target.value as StorageType)}
               >
                 <FormControlLabel
-                  value="file"
+                  value={StorageType.File}
                   control={<Radio size="small" />}
                   label="File"
                 />
                 <FormControlLabel
-                  value="memory"
+                  value={StorageType.Memory}
                   control={<Radio size="small" />}
                   label="Memory"
                 />
@@ -165,15 +169,17 @@ const AddDialog = ({ open, openHandler }: props) => {
               <RadioGroup
                 row
                 value={discardPolicy}
-                onChange={(e) => setDiscardPolicy(e.target.value)}
+                onChange={(e) =>
+                  setDiscardPolicy(e.target.value as DiscardPolicy)
+                }
               >
                 <FormControlLabel
-                  value="old"
+                  value={DiscardPolicy.Old}
                   control={<Radio size="small" />}
                   label="Old"
                 />
                 <FormControlLabel
-                  value="new"
+                  value={DiscardPolicy.New}
                   control={<Radio size="small" />}
                   label="New"
                 />
@@ -193,23 +199,25 @@ const AddDialog = ({ open, openHandler }: props) => {
                 row
                 className="radio-group-font"
                 value={retentionPolicy}
-                onChange={(e) => setRetentionPolicy(e.target.value)}
+                onChange={(e) =>
+                  setRetentionPolicy(e.target.value as RetentionPolicy)
+                }
               >
                 <FormControlLabel
                   className="radio-group-font"
-                  value="limits"
+                  value={RetentionPolicy.Limits}
                   control={<Radio size="small" />}
                   label="Limits"
                 />
                 <FormControlLabel
                   className="radio-group-font"
-                  value="interest"
+                  value={RetentionPolicy.Interest}
                   control={<Radio size="small" />}
                   label="Interest"
                 />
                 <FormControlLabel
                   className="radio-group-font"
-                  value="workqueue"
+                  value={RetentionPolicy.Workqueue}
                   control={<Radio size="small" />}
                   label="Work Queue"
                 />
@@ -338,12 +346,6 @@ const AddDialog = ({ open, openHandler }: props) => {
             <div className="switch-group">
               <div className="radio-group-header">
                 <FormLabel>Allow Message Roll-Ups</FormLabel>
-                <Tooltip title="Storage Type">
-                  <InfoIcon
-                    fontSize="small"
-                    sx={{ color: "skyblue" }}
-                  ></InfoIcon>
-                </Tooltip>
               </div>
               <Switch
                 size="small"
@@ -354,12 +356,6 @@ const AddDialog = ({ open, openHandler }: props) => {
             <div className="switch-group">
               <div className="radio-group-header">
                 <FormLabel>Allow Message Deletion</FormLabel>
-                <Tooltip title="Storage Type">
-                  <InfoIcon
-                    fontSize="small"
-                    sx={{ color: "skyblue" }}
-                  ></InfoIcon>
-                </Tooltip>
               </div>
               <Switch
                 size="small"
@@ -370,12 +366,6 @@ const AddDialog = ({ open, openHandler }: props) => {
             <div className="switch-group">
               <div className="radio-group-header">
                 <FormLabel>Allow Purge</FormLabel>
-                <Tooltip title="Storage Type">
-                  <InfoIcon
-                    fontSize="small"
-                    sx={{ color: "skyblue" }}
-                  ></InfoIcon>
-                </Tooltip>
               </div>
               <Switch
                 size="small"
@@ -389,8 +379,8 @@ const AddDialog = ({ open, openHandler }: props) => {
       <DialogActions>
         <Button onClick={() => openHandler(false)}>Cancel</Button>
         <Button
-          onClick={() => {
-            addJetstream();
+          onClick={async () => {
+            await addJetstream();
             openHandler(false);
             setJetstreamName("");
             setSubjects([]);

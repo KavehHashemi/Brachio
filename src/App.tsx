@@ -3,6 +3,7 @@ import SearchComponent from "./components/SearchComponent";
 import JetstreamsComponent from "./components/JetstreamsComponent";
 import FooterComponent from "./components/FooterComponent";
 import ErrorSnackBar from "./components/ErrorSnackBar";
+import MessageSnackBar from "./components/MessageSnackBar";
 import FAB from "./components/FAB";
 import data from "./connectionconfig.json";
 import { useAppDispatch, useAppSelector } from "./hooks";
@@ -29,6 +30,7 @@ const App = () => {
       <FooterComponent></FooterComponent>
       <FAB></FAB>
       <ErrorSnackBar></ErrorSnackBar>
+      <MessageSnackBar></MessageSnackBar>
     </>
   );
 };

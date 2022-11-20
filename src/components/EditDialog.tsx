@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { editStream, listJetstreams } from "../store/streams";
+import { editStream, EditStreamConfig, listJetstreams } from "../store/streams";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -18,10 +18,10 @@ type props = {
 const EditDialog = ({ open, handleShow, jetstream }: props) => {
   const dispatch = useAppDispatch();
   const { jetstreamManager } = useAppSelector((state) => state.streams);
-  const [subjects, setSubjects] = useState(jetstream.config.subjects);
+  const [subjects, setSubjects] = useState(jetstream?.config?.subjects);
   const editJetstream = async () => {
-    const config = {
-      stream: jetstream.config.name,
+    const config: EditStreamConfig = {
+      stream: jetstream?.config?.name,
       jetstreamManager: jetstreamManager,
       subjects: subjects,
     };
@@ -29,7 +29,6 @@ const EditDialog = ({ open, handleShow, jetstream }: props) => {
     if (jetstreamManager !== null) {
       dispatch(listJetstreams(jetstreamManager));
     }
-
     handleShow(false);
   };
 
@@ -45,7 +44,7 @@ const EditDialog = ({ open, handleShow, jetstream }: props) => {
         open={open}
         onClose={() => handleShow(false)}
       >
-        <DialogTitle>{`Edit Jetstream ${jetstream?.config.name}`}</DialogTitle>
+        <DialogTitle>{`Edit Jetstream ${jetstream?.config?.name}`}</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth

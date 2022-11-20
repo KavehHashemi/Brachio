@@ -1,5 +1,9 @@
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { purgeStream, listJetstreams } from "../store/streams";
+import {
+  purgeStream,
+  listJetstreams,
+  PurgeStreamConfig,
+} from "../store/streams";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -18,8 +22,8 @@ const PurgeDialog = ({ open, handleShow, jetstream }: props) => {
   const dispatch = useAppDispatch();
   const { jetstreamManager } = useAppSelector((state) => state.streams);
   const purgeJetstream = () => {
-    const config = {
-      stream: jetstream.config.name,
+    const config: PurgeStreamConfig = {
+      stream: jetstream.config?.name,
       jetstreamManager: jetstreamManager,
     };
     dispatch(purgeStream(config));
@@ -34,7 +38,7 @@ const PurgeDialog = ({ open, handleShow, jetstream }: props) => {
         <DialogTitle>{"Purge Jetstream"}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {`Are you sure you want to purge jetstream ${jetstream.config.name}?`}
+            {`Are you sure you want to purge jetstream ${jetstream?.config?.name}?`}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

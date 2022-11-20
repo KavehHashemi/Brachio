@@ -18,7 +18,7 @@ const DeleteDialog = ({ open, handleShow, jetstream }: props) => {
   const dispatch = useAppDispatch();
   const { jetstreamManager } = useAppSelector((state) => state.streams);
   const deleteJetstream = () => {
-    dispatch(removeJetstream(jetstream.config.name));
+    dispatch(removeJetstream(jetstream?.config?.name));
     if (jetstreamManager !== null) {
       dispatch(listJetstreams(jetstreamManager));
     }
@@ -30,7 +30,7 @@ const DeleteDialog = ({ open, handleShow, jetstream }: props) => {
         <DialogTitle>{"Delete Jetstream"}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {`Are you sure you want to delete jetstream ${jetstream.config.name}?`}
+            {`Are you sure you want to delete jetstream ${jetstream?.config?.name}?`}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

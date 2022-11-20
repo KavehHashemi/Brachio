@@ -11,8 +11,9 @@ const initialState: IinitialState = {
 export const getConsumersByStream = createAsyncThunk(
   "consumers/getConsumers",
   async (config: any, thunkAPI) => {
-    const response = await config.jetstreamManager.consumers.list(config.stream)
-      .next;
+    const response = await config.jetstreamManager.consumers
+      .list(config.stream)
+      .next();
     return response;
   }
 );
