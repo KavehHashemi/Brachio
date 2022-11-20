@@ -17,14 +17,22 @@ const InfoDialog = ({ open, handleShow, jetstream }: props) => {
   let consumersList: JSX.Element[] = [];
   let consumerCounter: number = 0;
   jetstream.consumers?.forEach((con) => {
-    consumersList.push(<div key={consumerCounter}>{con?.name}</div>);
+    consumersList.push(
+      <span style={{ marginInline: "4px" }} key={consumerCounter}>
+        {con?.name}
+      </span>
+    );
     consumerCounter++;
   });
 
   let subjectsArray: JSX.Element[] = [];
   let subjectsCounter: number = 0;
   jetstream?.stream.config.subjects.forEach((sub) => {
-    subjectsArray.push(<div key={subjectsCounter}>{sub}</div>);
+    subjectsArray.push(
+      <span style={{ marginInline: "4px" }} key={subjectsCounter}>
+        {sub}
+      </span>
+    );
     subjectsCounter++;
   });
   return (
@@ -46,9 +54,9 @@ const InfoDialog = ({ open, handleShow, jetstream }: props) => {
       <DialogContent>
         <div id="details-container">
           {/* <ConsumersComponent jetstream={jetstream}></ConsumersComponent> */}
-          <div>consumers: {consumersList}</div>
+          <p>consumers: {consumersList}</p>
           <p>name: {jetstream?.stream.config.name}</p>
-          <div style={{ display: "flex" }}>subjects: {subjectsArray}</div>
+          <p style={{ display: "flex" }}>subjects: {subjectsArray}</p>
           <p>retention: {jetstream?.stream.config.retention}</p>
           <p>max. consumers: {jetstream?.stream.config.max_consumers}</p>
           <p>max. messages: {jetstream?.stream.config.max_msgs}</p>

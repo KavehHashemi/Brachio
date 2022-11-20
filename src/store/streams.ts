@@ -6,6 +6,7 @@ import {
   NatsConnection,
   ConsumerInfo,
 } from "nats.ws/lib/nats-base-client/types";
+
 export type SingleJetstream = {
   stream: StreamInfo;
   consumers: ConsumerInfo[];
@@ -48,21 +49,17 @@ export const setJetstreamManager = createAsyncThunk(
 export const listJetstreams = createAsyncThunk(
   "streams/listJetstreams",
   async (jetstreamManager: JetStreamManager, thunkAPI) => {
-    let singleJetstreams: SingleJetstream[] = [];
+    let singleJetstreams: SingleJetstream;
     const response = await jetstreamManager?.streams.list().next();
     let promises = response.map(async (res) => {
       let consumers = await jetstreamManager.consumers
         .list(res.config.name)
         .next();
-      singleJetstreams = [
-        ...singleJetstreams,
-        { stream: res, consumers: consumers },
-      ];
-      console.log(singleJetstreams);
+      singleJetstreams = { stream: res, consumers: consumers };
       return singleJetstreams;
     });
-    let a = await Promise.all(promises);
-    return a[a.length - 1];
+    let results = await Promise.all(promises);
+    return results;
   }
 );
 
