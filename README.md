@@ -1,3 +1,10 @@
+# Environment
+
+Download & Install [GO](https://go.dev/doc/install).
+Download [NATS-Server](https://github.com/nats-io/nats-server/releases)
+Run NATS-Server using ### `nats-server -c server.conf`
+Run React app using ###`npm start`
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
