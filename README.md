@@ -6,8 +6,8 @@
 
 - Run NATS-Server
 
-## `nats-server -c server.conf`
+  ### `nats-server -c server.conf`
 
 - Run React app
 
-## `npm start`
+  ### `npm start`
