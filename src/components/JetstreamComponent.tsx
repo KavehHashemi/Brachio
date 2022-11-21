@@ -1,6 +1,6 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import DeleteDialog from "./DeleteDialog";
 import InfoDialog from "./InfoDialog";
 import PurgeDialog from "./PurgeDialog";
@@ -10,33 +10,17 @@ import ClearIcon from "@mui/icons-material/CleaningServicesOutlined";
 import EditIcon from "@mui/icons-material/Edit";
 import Tooltip from "@mui/material/Tooltip";
 import EditDialog from "./EditDialog";
-import { listJetstreams, SingleJetstream } from "../store/streams";
-import { ConsumerInfo, StreamInfo } from "nats.ws";
-import { useAppDispatch, useAppSelector } from "../hooks";
+import { SingleJetstream } from "../store/streams";
 
 type props = {
   jetstream: SingleJetstream;
 };
-type Data = {
-  streamName: string;
-  messageCount: number;
-  consumersCount: number;
-};
 
 const JetstreamComponent = ({ jetstream }: props) => {
-  const { searchResults, jetstreamManager } = useAppSelector(
-    (state) => state.streams
-  );
-  const dispatch = useAppDispatch();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showInfoDialog, setShowInfoDialog] = useState(false);
   const [showPurgeDialog, setShowPurgeDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [data, setData] = useState<Data>({
-    streamName: "",
-    messageCount: 0,
-    consumersCount: 0,
-  });
 
   const handleDeleteDialog = (show: boolean) => {
     setShowDeleteDialog(show);
@@ -51,29 +35,6 @@ const JetstreamComponent = ({ jetstream }: props) => {
     setShowEditDialog(show);
   };
 
-  // useEffect(() => {
-  //   // (async () => {
-  //   //   setData({
-  //   //     streamName: jetstream.stream.config?.name,
-  //   //     messageCount: jetstream.stream.state?.messages,
-  //   //     consumersCount: jetstream.stream.state?.consumer_count,
-  //   //   });
-  //   //   console.log("test");
-  //   // })();
-  // }, []);
-  // setData({
-  //   streamName: stream.config?.name,
-  //   messageCount: stream.state?.messages,
-  //   consumersCount: stream.state?.consumer_count,
-  // });
-  // useEffect(() => {
-  //   setData({
-  //     streamName: jetstream.stream?.config?.name,
-  //     messageCount: jetstream.stream?.state?.messages,
-  //     consumersCount: jetstream.stream?.state?.consumer_count,
-  //   });
-  //   //if (jetstreamManager !== null) dispatch(listJetstreams(jetstreamManager));
-  // }, [searchResults.length]);
   const subjectsArray: JSX.Element[] = [];
   let counter = 0;
   jetstream.stream?.config.subjects.map((subj: string) => {
@@ -132,8 +93,6 @@ const JetstreamComponent = ({ jetstream }: props) => {
             <div>
               Active Consumers: {jetstream.stream?.state.consumer_count}
             </div>
-            {/* <div>Messages: {data.messageCount}</div>
-            <div>Active Consumers: {data.consumersCount}</div> */}
           </div>
         </div>
         <div className="jetstream-footer"></div>

@@ -1,11 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
 import streamsReducer from "./streams";
-import consumersReducer from "./consumers";
 
 export const store = configureStore({
   reducer: {
     streams: streamsReducer,
-    consumers: consumersReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

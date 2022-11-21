@@ -42,7 +42,7 @@ const InfoDialog = ({ open, handleShow, jetstream }: props) => {
       open={open}
       onClose={() => handleShow(false)}
     >
-      <DialogTitle>
+      <DialogTitle style={{ borderBottom: "1px solid #e5e5e5" }}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           {`${jetstream?.stream?.config?.name}'s details`}
           <CloseIcon
@@ -51,9 +51,8 @@ const InfoDialog = ({ open, handleShow, jetstream }: props) => {
           ></CloseIcon>
         </div>
       </DialogTitle>
-      <DialogContent>
+      <DialogContent style={{ backgroundColor: "#f9f9f9" }}>
         <div id="details-container">
-          {/* <ConsumersComponent jetstream={jetstream}></ConsumersComponent> */}
           <p>consumers: {consumersList}</p>
           <p>name: {jetstream?.stream?.config.name}</p>
           <p style={{ display: "flex" }}>subjects: {subjectsArray}</p>
