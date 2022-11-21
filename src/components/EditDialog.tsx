@@ -45,9 +45,11 @@ const EditDialog = ({ open, handleShow, jetstream }: props) => {
         onClose={() => handleShow(false)}
       >
         <DialogTitle>{`Edit Jetstream ${jetstream?.config?.name}`}</DialogTitle>
-        <DialogContent>
+        <DialogContent style={{ padding: "1rem" }}>
           <TextField
             fullWidth
+            helperText={"Comma separated values"}
+            label={"Stream Subjects"}
             value={subjects}
             onChange={(e) => handleChange(e.target.value)}
           ></TextField>
