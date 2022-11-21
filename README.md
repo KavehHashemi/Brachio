@@ -6,7 +6,7 @@ For more information about NATS and customizing the server.conf file refer to [N
 
 ## Environment
 
-- Download & Install [GO](https://go.dev/doc/install).
+- Download & Install [GO](https://go.dev/doc/install)
 
 - Download [NATS-Server](https://github.com/nats-io/nats-server/releases)
 
