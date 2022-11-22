@@ -9,7 +9,7 @@ import { SingleJetstream } from "../store/streams";
 
 type props = {
   open: boolean;
-  handleShow: (show: boolean) => void;
+  handleShow: (show: boolean, id: string) => void;
   jetstream: SingleJetstream;
 };
 
@@ -40,14 +40,14 @@ const InfoDialog = ({ open, handleShow, jetstream }: props) => {
       fullWidth={true}
       maxWidth={false}
       open={open}
-      onClose={() => handleShow(false)}
+      onClose={() => handleShow(false, "info")}
     >
       <DialogTitle style={{ borderBottom: "1px solid #e5e5e5" }}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           {`${jetstream?.stream?.config?.name}'s details`}
           <CloseIcon
             style={{ cursor: "pointer" }}
-            onClick={() => handleShow(false)}
+            onClick={() => handleShow(false, "info")}
           ></CloseIcon>
         </div>
       </DialogTitle>
@@ -60,7 +60,12 @@ const InfoDialog = ({ open, handleShow, jetstream }: props) => {
           <p>max. consumers: {jetstream?.stream?.config.max_consumers}</p>
           <p>max. messages: {jetstream?.stream?.config.max_msgs}</p>
           <p>max. bytes: {jetstream?.stream?.config.max_bytes}</p>
-          <p>max. age: {jetstream?.stream?.config.max_age}</p>
+          <p>
+            max. age:{" "}
+            {jetstream?.stream?.config.max_age === 0
+              ? "unlimited"
+              : `${jetstream?.stream?.config.max_age / 1000000000} seconds`}
+          </p>
           <p>
             max. messages per subject:{" "}
             {jetstream?.stream?.config.max_msgs_per_subject}
@@ -69,7 +74,10 @@ const InfoDialog = ({ open, handleShow, jetstream }: props) => {
           <p>discard: {jetstream?.stream?.config.discard}</p>
           <p>storage: {jetstream?.stream?.config.storage}</p>
           <p>number of replicas: {jetstream?.stream?.config.num_replicas}</p>
-          <p>duplicate window: {jetstream?.stream?.config.duplicate_window}</p>
+          <p>
+            duplicate window:{" "}
+            {jetstream?.stream?.config.duplicate_window / 1000000000} seconds
+          </p>
           <p>sealed: {jetstream?.stream?.config.sealed?.toString()}</p>
           <p>
             deny delete: {jetstream?.stream?.config.deny_delete?.toString()}

@@ -16,23 +16,20 @@ type props = {
   jetstream: SingleJetstream;
 };
 
-const JetstreamComponent = ({ jetstream }: props) => {
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showInfoDialog, setShowInfoDialog] = useState(false);
-  const [showPurgeDialog, setShowPurgeDialog] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
+type showType = {
+  [id: string]: boolean;
+};
 
-  const handleDeleteDialog = (show: boolean) => {
-    setShowDeleteDialog(show);
-  };
-  const handleInfoDialog = (show: boolean) => {
-    setShowInfoDialog(show);
-  };
-  const handlePurgeDialog = (show: boolean) => {
-    setShowPurgeDialog(show);
-  };
-  const handleEditDialog = (show: boolean) => {
-    setShowEditDialog(show);
+const JetstreamComponent = ({ jetstream }: props) => {
+  const [showDialog, setShowDialog] = useState<showType>({
+    remove: false,
+    info: false,
+    purge: false,
+    edit: false,
+  });
+
+  const handleDialogs = (show: boolean, id: string) => {
+    setShowDialog({ ...showDialog, [id]: show });
   };
 
   const subjectsArray: JSX.Element[] = [];
@@ -54,34 +51,38 @@ const JetstreamComponent = ({ jetstream }: props) => {
           <div className="jetstream-actions">
             <Tooltip title="Edit">
               <EditIcon
+                id="edit"
                 className="card-icon"
                 fontSize="small"
                 sx={{ color: "green" }}
-                onClick={() => handleEditDialog(true)}
+                onClick={(e) => handleDialogs(true, e.currentTarget.id)}
               ></EditIcon>
             </Tooltip>
             <Tooltip title="Purge">
               <ClearIcon
+                id="purge"
                 className="card-icon"
                 fontSize="small"
                 sx={{ color: "orange" }}
-                onClick={() => handlePurgeDialog(true)}
+                onClick={(e) => handleDialogs(true, e.currentTarget.id)}
               ></ClearIcon>
             </Tooltip>
             <Tooltip title="Info">
               <InfoIcon
+                id="info"
                 className="card-icon"
                 fontSize="small"
                 color="info"
-                onClick={() => handleInfoDialog(true)}
+                onClick={(e) => handleDialogs(true, e.currentTarget.id)}
               ></InfoIcon>
             </Tooltip>
             <Tooltip title="Delete">
               <DeleteIcon
+                id="remove"
                 className="card-icon"
                 fontSize="small"
                 sx={{ color: "#d18091" }}
-                onClick={() => handleDeleteDialog(true)}
+                onClick={(e) => handleDialogs(true, e.currentTarget.id)}
               ></DeleteIcon>
             </Tooltip>
           </div>
@@ -99,23 +100,23 @@ const JetstreamComponent = ({ jetstream }: props) => {
       </div>
       <DeleteDialog
         jetstream={jetstream.stream}
-        open={showDeleteDialog}
-        handleShow={handleDeleteDialog}
+        open={showDialog.remove}
+        handleShow={handleDialogs}
       ></DeleteDialog>
       <InfoDialog
         jetstream={jetstream}
-        open={showInfoDialog}
-        handleShow={handleInfoDialog}
+        open={showDialog.info}
+        handleShow={handleDialogs}
       ></InfoDialog>
       <PurgeDialog
         jetstream={jetstream.stream}
-        open={showPurgeDialog}
-        handleShow={handlePurgeDialog}
+        open={showDialog.purge}
+        handleShow={handleDialogs}
       ></PurgeDialog>
       <EditDialog
         jetstream={jetstream.stream}
-        open={showEditDialog}
-        handleShow={handleEditDialog}
+        open={showDialog.edit}
+        handleShow={handleDialogs}
       ></EditDialog>
     </>
   );

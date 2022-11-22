@@ -11,7 +11,7 @@ import { StreamInfo } from "nats.ws";
 
 type props = {
   open: boolean;
-  handleShow: (show: boolean) => void;
+  handleShow: (show: boolean, id: string) => void;
   jetstream: StreamInfo;
 };
 
@@ -29,7 +29,7 @@ const EditDialog = ({ open, handleShow, jetstream }: props) => {
     if (jetstreamManager !== null) {
       dispatch(listJetstreams(jetstreamManager));
     }
-    handleShow(false);
+    handleShow(false, "edit");
   };
 
   const handleChange = (entry: string) => {
@@ -42,7 +42,7 @@ const EditDialog = ({ open, handleShow, jetstream }: props) => {
         fullWidth={true}
         maxWidth={"sm"}
         open={open}
-        onClose={() => handleShow(false)}
+        onClose={() => handleShow(false, "edit")}
       >
         <DialogTitle>{`Edit Jetstream ${jetstream?.config?.name}`}</DialogTitle>
         <DialogContent style={{ padding: "1rem" }}>
@@ -55,7 +55,7 @@ const EditDialog = ({ open, handleShow, jetstream }: props) => {
           ></TextField>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => handleShow(false)}>Cancel</Button>
+          <Button onClick={() => handleShow(false, "edit")}>Cancel</Button>
           <Button onClick={editJetstream}>Confirm</Button>
         </DialogActions>
       </Dialog>

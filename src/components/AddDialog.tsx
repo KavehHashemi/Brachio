@@ -15,67 +15,58 @@ import FormLabel from "@mui/material/FormLabel";
 import Switch from "@mui/material/Switch";
 import Tooltip from "@mui/material/Tooltip";
 import InfoIcon from "@mui/icons-material/InfoOutlined";
-import { StorageType, RetentionPolicy, DiscardPolicy } from "nats.ws";
+import {
+  StorageType,
+  RetentionPolicy,
+  DiscardPolicy,
+  StreamConfig,
+} from "nats.ws";
 
 type props = {
   open: boolean;
   openHandler: (show: boolean) => void;
 };
 
+const initialState: StreamConfig = {
+  name: "",
+  subjects: [],
+  storage: StorageType.File,
+  num_replicas: 1,
+  retention: RetentionPolicy.Limits,
+  discard: DiscardPolicy.Old,
+  max_msgs: -1,
+  max_msgs_per_subject: -1,
+  max_bytes: -1,
+  max_age: 0,
+  max_msg_size: -1,
+  duplicate_window: 0,
+  allow_rollup_hdrs: false,
+  deny_delete: false,
+  deny_purge: false,
+  ///
+  allow_direct: true,
+  discard_new_per_subject: true,
+  max_consumers: -1,
+  mirror_direct: true,
+  sealed: false,
+};
+
 const AddDialog = ({ open, openHandler }: props) => {
   const dispatch = useAppDispatch();
   const { jetstreamManager } = useAppSelector((state) => state.streams);
-  const [jetstreamName, setJetstreamName] = useState<string>("");
-  const [subjects, setSubjects] = useState<string[]>([]);
-  const [storage, setStorage] = useState<StorageType>(StorageType.File);
-  const [replication, setReplication] = useState<number>(1);
-  const [retentionPolicy, setRetentionPolicy] = useState<RetentionPolicy>(
-    RetentionPolicy.Limits
-  );
-  const [discardPolicy, setDiscardPolicy] = useState<DiscardPolicy>(
-    DiscardPolicy.Old
-  );
-  const [messagesLimit, setMessagesLimit] = useState<number>(-1);
-  const [perSubjectMessagesLimit, setPerSubjectMessagesLimit] =
-    useState<number>(-1);
-  const [totalStreamsize, setTotalStreamsize] = useState<number>(-1);
-  const [messageTTL, setMessageTTL] = useState<number>(0);
-  const [maxMessageSize, setMaxMessageSize] = useState<number>(-1);
-  const [duplicateTrackingTimeWindow, setDuplicateTrackingTimeWindow] =
-    useState<number>(0);
-  const [allowMessageRollUps, setAllowMessageRollUps] =
-    useState<boolean>(false);
-  const [allowMessageDeletion, setAllowMessageDeletion] =
-    useState<boolean>(true);
-  const [allowPurge, setAllowPurge] = useState<boolean>(true);
+  const [streamConfig, setStreamConfig] = useState<StreamConfig>(initialState);
 
   const addJetstream = async () => {
     let config: AddStreamConfig = {
       jetstreamManager: jetstreamManager,
-      streamConfig: {
-        name: jetstreamName,
-        subjects: subjects,
-        storage: storage,
-        num_replicas: replication,
-        retention: retentionPolicy,
-        discard: discardPolicy,
-        max_msgs: messagesLimit,
-        max_msgs_per_subject: perSubjectMessagesLimit,
-        max_bytes: totalStreamsize,
-        max_age: messageTTL,
-        max_msg_size: maxMessageSize,
-        duplicate_window: duplicateTrackingTimeWindow,
-        allow_rollup_hdrs: !allowMessageRollUps,
-        deny_delete: !allowMessageDeletion,
-        deny_purge: !allowPurge,
-      },
+      streamConfig: streamConfig,
     };
     dispatch(addNewJetstream(config));
   };
 
   const setMultipleSubjects = (subjectsArray: string) => {
     let array = subjectsArray.split(",");
-    setSubjects(array);
+    setStreamConfig({ ...streamConfig, subjects: array });
   };
 
   return (
@@ -106,9 +97,10 @@ const AddDialog = ({ open, openHandler }: props) => {
                 label="Jetstream Name"
                 type="text"
                 variant="outlined"
-                // sx={{ width: "45%" }}
-                value={jetstreamName}
-                onChange={(e) => setJetstreamName(e.target.value)}
+                value={streamConfig.name}
+                onChange={(e) =>
+                  setStreamConfig({ ...streamConfig, name: e.target.value })
+                }
               />
             </div>
             <div className="addjet-subject">
@@ -116,11 +108,10 @@ const AddDialog = ({ open, openHandler }: props) => {
                 margin="normal"
                 size="small"
                 fullWidth
-                // sx={{ width: "100%" }}
                 label="Subject"
                 type="text"
                 variant="outlined"
-                value={subjects}
+                value={streamConfig.subjects}
                 onChange={(e) => setMultipleSubjects(e.target.value)}
               />
               <Tooltip title="Streams consume messages from subjects, this is a comma separated list that can include wildcards.">
@@ -141,8 +132,13 @@ const AddDialog = ({ open, openHandler }: props) => {
               </div>
               <RadioGroup
                 row
-                value={storage}
-                onChange={(e) => setStorage(e.target.value as StorageType)}
+                value={streamConfig.storage}
+                onChange={(e) =>
+                  setStreamConfig({
+                    ...streamConfig,
+                    storage: e.target.value as StorageType,
+                  })
+                }
               >
                 <FormControlLabel
                   value={StorageType.File}
@@ -168,9 +164,12 @@ const AddDialog = ({ open, openHandler }: props) => {
               </div>
               <RadioGroup
                 row
-                value={discardPolicy}
+                value={streamConfig.discard}
                 onChange={(e) =>
-                  setDiscardPolicy(e.target.value as DiscardPolicy)
+                  setStreamConfig({
+                    ...streamConfig,
+                    discard: e.target.value as DiscardPolicy,
+                  })
                 }
               >
                 <FormControlLabel
@@ -198,9 +197,12 @@ const AddDialog = ({ open, openHandler }: props) => {
               <RadioGroup
                 row
                 className="radio-group-font"
-                value={retentionPolicy}
+                value={streamConfig.retention}
                 onChange={(e) =>
-                  setRetentionPolicy(e.target.value as RetentionPolicy)
+                  setStreamConfig({
+                    ...streamConfig,
+                    retention: e.target.value as RetentionPolicy,
+                  })
                 }
               >
                 <FormControlLabel
@@ -229,13 +231,17 @@ const AddDialog = ({ open, openHandler }: props) => {
               <TextField
                 margin="normal"
                 size="small"
-                // sx={{ width: "25%" }}
                 label="Replication"
                 type="number"
                 fullWidth
                 variant="outlined"
-                value={replication}
-                onChange={(e) => setReplication(Number(e.target.value))}
+                value={streamConfig.num_replicas}
+                onChange={(e) =>
+                  setStreamConfig({
+                    ...streamConfig,
+                    num_replicas: Number(e.target.value),
+                  })
+                }
               />
               <Tooltip title="When clustered, defines how many replicas of the data to store.">
                 <InfoIcon fontSize="small" sx={{ color: "skyblue" }}></InfoIcon>
@@ -245,13 +251,17 @@ const AddDialog = ({ open, openHandler }: props) => {
               <TextField
                 margin="normal"
                 size="small"
-                // sx={{ width: "25%" }}
                 label="Messages Limit"
                 type="number"
                 fullWidth
                 variant="outlined"
-                value={messagesLimit}
-                onChange={(e) => setMessagesLimit(Number(e.target.value))}
+                value={streamConfig.max_msgs}
+                onChange={(e) =>
+                  setStreamConfig({
+                    ...streamConfig,
+                    max_msgs: Number(e.target.value),
+                  })
+                }
               />
               <Tooltip title="Defines the amount of messages to keep in the store for this Stream, when exceeded oldest messages are removed, -1 for unlimited.">
                 <InfoIcon fontSize="small" sx={{ color: "skyblue" }}></InfoIcon>
@@ -261,14 +271,16 @@ const AddDialog = ({ open, openHandler }: props) => {
               <TextField
                 margin="normal"
                 size="small"
-                // sx={{ width: "25%" }}
                 label="Per Subject Messages Limit"
                 type="number"
                 fullWidth
                 variant="outlined"
-                value={perSubjectMessagesLimit}
+                value={streamConfig.max_msgs_per_subject}
                 onChange={(e) =>
-                  setPerSubjectMessagesLimit(Number(e.target.value))
+                  setStreamConfig({
+                    ...streamConfig,
+                    max_msgs_per_subject: Number(e.target.value),
+                  })
                 }
               />
               <Tooltip title=" Defines the amount of messages to keep in the store for this Stream per unique subject, when exceeded oldest messages are removed, -1 for unlimited.">
@@ -279,13 +291,17 @@ const AddDialog = ({ open, openHandler }: props) => {
               <TextField
                 margin="normal"
                 size="small"
-                // sx={{ width: "25%" }}
                 label="Total Stream Size"
                 type="number"
                 fullWidth
                 variant="outlined"
-                value={totalStreamsize}
-                onChange={(e) => setTotalStreamsize(Number(e.target.value))}
+                value={streamConfig.max_bytes}
+                onChange={(e) =>
+                  setStreamConfig({
+                    ...streamConfig,
+                    max_bytes: Number(e.target.value),
+                  })
+                }
               />
               <Tooltip title="Defines the combined size of all messages in a Stream, when exceeded messages are removed or new ones are rejected, -1 for unlimited.">
                 <InfoIcon fontSize="small" sx={{ color: "skyblue" }}></InfoIcon>
@@ -295,13 +311,17 @@ const AddDialog = ({ open, openHandler }: props) => {
               <TextField
                 margin="normal"
                 size="small"
-                // sx={{ width: "25%" }}
                 label="Message TTL"
                 type="number"
                 fullWidth
                 variant="outlined"
-                value={messageTTL}
-                onChange={(e) => setMessageTTL(Number(e.target.value))}
+                value={streamConfig.max_age}
+                onChange={(e) =>
+                  setStreamConfig({
+                    ...streamConfig,
+                    max_age: Number(e.target.value),
+                  })
+                }
               />
               <Tooltip title="Defines the oldest messages that can be stored in the Stream, any messages older than this period will be removed, -1 for unlimited.">
                 <InfoIcon fontSize="small" sx={{ color: "skyblue" }}></InfoIcon>
@@ -311,13 +331,17 @@ const AddDialog = ({ open, openHandler }: props) => {
               <TextField
                 margin="normal"
                 size="small"
-                // sx={{ width: "25%" }}
                 label="Max Message Size"
                 type="number"
                 fullWidth
                 variant="outlined"
-                value={maxMessageSize}
-                onChange={(e) => setMaxMessageSize(Number(e.target.value))}
+                value={streamConfig.max_msg_size}
+                onChange={(e) =>
+                  setStreamConfig({
+                    ...streamConfig,
+                    max_msg_size: Number(e.target.value),
+                  })
+                }
               />
               <Tooltip title="Defines the maximum size any single message may be to be accepted by the Stream.">
                 <InfoIcon fontSize="small" sx={{ color: "skyblue" }}></InfoIcon>
@@ -327,14 +351,16 @@ const AddDialog = ({ open, openHandler }: props) => {
               <TextField
                 margin="normal"
                 size="small"
-                // sx={{ width: "25%" }}
                 label="Duplicate Tracking Time Window"
                 type="number"
                 fullWidth
                 variant="outlined"
-                value={duplicateTrackingTimeWindow}
+                value={streamConfig.duplicate_window}
                 onChange={(e) =>
-                  setDuplicateTrackingTimeWindow(Number(e.target.value))
+                  setStreamConfig({
+                    ...streamConfig,
+                    duplicate_window: Number(e.target.value),
+                  })
                 }
               />
               <Tooltip title="Duplicate messages are identified by the Msg-Id headers and tracked within a window of this size.">
@@ -349,28 +375,43 @@ const AddDialog = ({ open, openHandler }: props) => {
               </div>
               <Switch
                 size="small"
-                checked={allowMessageRollUps}
-                onChange={(e) => setAllowMessageRollUps(e.target.checked)}
+                checked={streamConfig.allow_rollup_hdrs}
+                onChange={(e) =>
+                  setStreamConfig({
+                    ...streamConfig,
+                    allow_rollup_hdrs: e.target.checked,
+                  })
+                }
               ></Switch>
             </div>
             <div className="switch-group">
               <div className="radio-group-header">
-                <FormLabel>Allow Message Deletion</FormLabel>
+                <FormLabel>Deny Message Deletion</FormLabel>
               </div>
               <Switch
                 size="small"
-                checked={allowMessageDeletion}
-                onChange={(e) => setAllowMessageDeletion(e.target.checked)}
+                checked={streamConfig.deny_delete}
+                onChange={(e) =>
+                  setStreamConfig({
+                    ...streamConfig,
+                    deny_delete: e.target.checked,
+                  })
+                }
               ></Switch>
             </div>
             <div className="switch-group">
               <div className="radio-group-header">
-                <FormLabel>Allow Purge</FormLabel>
+                <FormLabel>Deny Purge</FormLabel>
               </div>
               <Switch
                 size="small"
-                checked={allowPurge}
-                onChange={(e) => setAllowPurge(e.target.checked)}
+                checked={streamConfig.deny_purge}
+                onChange={(e) =>
+                  setStreamConfig({
+                    ...streamConfig,
+                    deny_purge: e.target.checked,
+                  })
+                }
               ></Switch>
             </div>
           </div>
@@ -382,8 +423,7 @@ const AddDialog = ({ open, openHandler }: props) => {
           onClick={async () => {
             await addJetstream();
             openHandler(false);
-            setJetstreamName("");
-            setSubjects([]);
+            setStreamConfig(initialState);
           }}
         >
           Add

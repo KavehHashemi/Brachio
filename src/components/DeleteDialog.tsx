@@ -10,7 +10,7 @@ import { StreamInfo } from "nats.ws";
 
 type props = {
   open: boolean;
-  handleShow: (show: boolean) => void;
+  handleShow: (show: boolean, id: string) => void;
   jetstream: StreamInfo;
 };
 
@@ -22,11 +22,11 @@ const DeleteDialog = ({ open, handleShow, jetstream }: props) => {
     if (jetstreamManager !== null) {
       dispatch(listJetstreams(jetstreamManager));
     }
-    handleShow(false);
+    handleShow(false, "remove");
   };
   return (
     <div>
-      <Dialog open={open} onClose={() => handleShow(false)}>
+      <Dialog open={open} onClose={() => handleShow(false, "remove")}>
         <DialogTitle>{"Delete Jetstream"}</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -34,7 +34,7 @@ const DeleteDialog = ({ open, handleShow, jetstream }: props) => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => handleShow(false)}>Cancel</Button>
+          <Button onClick={() => handleShow(false, "remove")}>Cancel</Button>
           <Button onClick={deleteJetstream}>Delete</Button>
         </DialogActions>
       </Dialog>

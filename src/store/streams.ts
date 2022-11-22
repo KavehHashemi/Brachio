@@ -182,7 +182,6 @@ export const streamsSlice = createSlice({
           state.jetstreams.push(added);
         }
         state.searchResults = state.jetstreams;
-        console.log(action);
         state.message = "Stream successfully created";
       })
       .addCase(addNewJetstream.rejected, (state: IinitialState, action) => {
