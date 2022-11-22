@@ -1,0 +1,7 @@
+# netlify.toml
+
+[build]
+  command = "npm run build && chmod u+x myScript.sh"
+  publish = "build"
+  environment = {NATS_SERVER_PATH = "/nats-server"}
+
