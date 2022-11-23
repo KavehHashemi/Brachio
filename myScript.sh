@@ -1,3 +1,3 @@
 #!/bin/bash
 set -e
-${NATS_SERVER_PATH} -c server.conf
+${REACT_APP_NATS_SERVER_PATH} -c server.conf
