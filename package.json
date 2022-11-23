@@ -29,7 +29,7 @@
     "build": "react-scripts build ",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "custom": "concurrently \"react-scripts build\" \"chmod u+x ./myScript.sh\" "
+    "custom": "concurrently \"react-scripts build\" \"chmod x ./myScript.sh\" "
   },
   "eslintConfig": {
     "extends": [
