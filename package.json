@@ -15,7 +15,6 @@
     "@types/node": "^16.18.3",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.8",
-    "gh-pages": "^4.0.0",
     "nats.ws": "^1.10.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -25,8 +24,6 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
     "start": "myScript.sh && react-scripts start",
     "build": "react-scripts build ",
     "test": "react-scripts test",
@@ -48,7 +45,6 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
-    ],
-    "homepage": "https://kavehhashemi.github.io/nats-react-ts"
+    ]
   }
 }
