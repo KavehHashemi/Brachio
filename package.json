@@ -15,6 +15,7 @@
     "@types/node": "^16.18.3",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.8",
+    "concurrently": "^7.6.0",
     "nats.ws": "^1.10.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -24,10 +25,11 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "myScript.sh && react-scripts start",
+    "start": "react-scripts start && chmod myScript.sh",
     "build": "react-scripts build ",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "custom": "concurrently \"myScript.sh\" \"react-scripts start\""
   },
   "eslintConfig": {
     "extends": [
