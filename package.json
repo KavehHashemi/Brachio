@@ -25,11 +25,11 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start && chmod myScript.sh",
+    "start": "react-scripts start",
     "build": "react-scripts build ",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "custom": "concurrently \"chmod u+x ./myScript.sh\" \"react-scripts start\""
+    "custom": "concurrently \"react-scripts build\" \"chmod u+x ./myScript.sh\" "
   },
   "eslintConfig": {
     "extends": [
