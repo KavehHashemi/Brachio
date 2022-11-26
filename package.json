@@ -25,7 +25,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start2": "react-scripts start",
+    "start": "concurrently \"react-scripts start\" \"chmod +x ./nats-server -c server.conf\" ",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
