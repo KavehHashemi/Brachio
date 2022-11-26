@@ -30,7 +30,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "custom2": "concurrently \"react-scripts build\" \"chmod +x ./myScript.sh\" ",
-    "custom": "concurrently \"react-scripts build\" \"chmod +x ./nats-server -c server.conf\" "
+    "custom": "concurrently \"react-scripts build\" \"chmod +x ./nats-server.exe -c server.conf\" "
   },
   "eslintConfig": {
     "extends": [
