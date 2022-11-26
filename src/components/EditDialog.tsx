@@ -44,7 +44,7 @@ const EditDialog = ({ open, handleShow, jetstream }: props) => {
         open={open}
         onClose={() => handleShow(false, "edit")}
       >
-        <DialogTitle>{`Edit Jetstream ${jetstream?.config?.name}`}</DialogTitle>
+        <DialogTitle>{`Edit ${jetstream?.config?.name}`}</DialogTitle>
         <DialogContent style={{ padding: "1rem" }}>
           <TextField
             fullWidth

@@ -30,7 +30,7 @@ const DeleteDialog = ({ open, handleShow, jetstream }: props) => {
         <DialogTitle>{"Delete Jetstream"}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {`Are you sure you want to delete jetstream ${jetstream?.config?.name}?`}
+            {`Are you sure you want to delete ${jetstream?.config?.name}?`}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

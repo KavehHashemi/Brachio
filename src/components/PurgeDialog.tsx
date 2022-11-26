@@ -38,7 +38,7 @@ const PurgeDialog = ({ open, handleShow, jetstream }: props) => {
         <DialogTitle>{"Purge Jetstream"}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {`Are you sure you want to purge jetstream ${jetstream?.config?.name}?`}
+            {`Are you sure you want to purge ${jetstream?.config?.name}?`}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

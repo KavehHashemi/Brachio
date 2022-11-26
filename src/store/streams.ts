@@ -7,6 +7,7 @@ import {
   ConsumerInfo,
   StreamConfig,
 } from "nats.ws/lib/nats-base-client/types";
+import { Messages, connectionStatuses } from "../Enums";
 
 export type SingleJetstream = {
   stream: StreamInfo;
@@ -26,8 +27,9 @@ export type EditStreamConfig = {
   subjects: string[];
 };
 
-interface IinitialState {
+export interface IinitialState {
   natsConnection: NatsConnection | undefined;
+  connectionStatus: string;
   jetstreamManager: JetStreamManager | null;
   jetstreams: SingleJetstream[];
   searchResults: SingleJetstream[];
@@ -36,6 +38,7 @@ interface IinitialState {
 }
 const initialState: IinitialState = {
   natsConnection: undefined,
+  connectionStatus: connectionStatuses.notConnected,
   jetstreamManager: null,
   jetstreams: [],
   searchResults: [],
@@ -49,7 +52,6 @@ export const connecToServer = createAsyncThunk(
     const natsConnection = await connect({
       servers: [serverUrl],
     });
-    console.log("returning natsConnection");
     return natsConnection;
   }
 );
@@ -58,10 +60,10 @@ export const setJetstreamManager = createAsyncThunk(
   "streams/setJetstreamManager",
   async (natsConnection: NatsConnection, thunkAPI) => {
     const jetstreamManager = await natsConnection.jetstreamManager();
-    console.log("returning jetstreamManager");
     return jetstreamManager;
   }
 );
+
 export const listJetstreams = createAsyncThunk(
   "streams/listJetstreams",
   async (jetstreamManager: JetStreamManager, thunkAPI) => {
@@ -114,7 +116,6 @@ export const purgeStream = createAsyncThunk(
     const response = await config.jetstreamManager?.streams.purge(
       config.stream
     );
-    console.log("purging stream");
     return response;
   }
 );
@@ -126,7 +127,6 @@ export const editStream = createAsyncThunk(
       config.stream,
       { subjects: config.subjects }
     );
-    console.log("editing stream");
     return response;
   }
 );
@@ -139,7 +139,7 @@ export const streamsSlice = createSlice({
         state.jetstreamManager?.streams.delete(action.payload);
       }
       state.searchResults = state.jetstreams;
-      state.message = "Stream successfully deleted";
+      state.message = Messages.delete;
     },
     searchJetstreams: (state, action) => {
       state.searchResults = state.jetstreams.filter((js) => {
@@ -154,17 +154,25 @@ export const streamsSlice = createSlice({
     clearMessage: (state) => {
       state.message = null;
     },
+    serverTimeOut: (state) => {
+      state.connectionStatus = connectionStatuses.Timeout;
+    },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(connecToServer.pending, (state: IinitialState, action) => {
+        state.connectionStatus = connectionStatuses.Connecting;
+      })
       .addCase(connecToServer.fulfilled, (state: IinitialState, action) => {
-        console.log("natsConnection set ");
+        state.connectionStatus = connectionStatuses.Connected;
         state.natsConnection = action.payload;
+      })
+      .addCase(connecToServer.rejected, (state: IinitialState, action) => {
+        state.connectionStatus = connectionStatuses.Failed;
       })
       .addCase(
         setJetstreamManager.fulfilled,
         (state: IinitialState, action) => {
-          console.log("jetstreamManager set ");
           state.jetstreamManager = action.payload;
         }
       )
@@ -182,22 +190,20 @@ export const streamsSlice = createSlice({
           state.jetstreams.push(added);
         }
         state.searchResults = state.jetstreams;
-        state.message = "Stream successfully created";
+        state.message = Messages.add;
       })
       .addCase(addNewJetstream.rejected, (state: IinitialState, action) => {
         state.errorMessage = action.error.message || null;
       })
       .addCase(purgeStream.fulfilled, (state, action) => {
-        state.message = "Stream successfully purged";
-        console.log("stream purged");
+        state.message = Messages.purge;
       })
       .addCase(purgeStream.rejected, (state, action) => {
         state.errorMessage = action.error.message || null;
       })
       .addCase(editStream.fulfilled, (state, action) => {
         state.searchResults = state.jetstreams;
-        state.message = "Stream successfully edited";
-        console.log("stream edited");
+        state.message = Messages.edit;
       })
       .addCase(editStream.rejected, (state, action) => {
         state.errorMessage = action.error.message || null;
@@ -210,6 +216,7 @@ export const {
   searchJetstreams,
   clearErrorMessage,
   clearMessage,
+  serverTimeOut,
 } = streamsSlice.actions;
 
 export default streamsSlice.reducer;
