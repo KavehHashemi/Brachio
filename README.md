@@ -2,10 +2,6 @@
 
 A React client for monitoring and managing jetstreams in NATS messaging system, written in typescript.
 
-## Demo
-
-You can view the demo [here](https://nats-react-ts.netlify.app/).
-
 ## Configuration
 
 Use [connectionconfig.json](https://github.com/KavehHashemi/nats-react-ts/blob/master/src/connectionconfig.json) in src folder to change the server URL for your NATS.ws connection.
